@@ -14,28 +14,6 @@ SessionDep = Annotated[Session, Depends(db.get_session)]
 MAX_PLANNING_DAYS = 366  # évite qu'un client demande un planning de plusieurs années
 
 
-@router.get("/menus", response_model=list[MenuPublic])
-def list_menus(session: SessionDep, date: date | None = None):
-    """Liste les menus actifs avec leurs produits.
-
-    Avec `?date=YYYY-MM-DD`, ne renvoie que les menus disponibles ce jour-là.
-    """
-    query = select(Menu).where(Menu.active == True)  # noqa: E712
-    if date is not None:
-        query = query.where(Menu.start_date <= date, Menu.end_date >= date)
-    menus = session.exec(query.order_by(Menu.id)).all()
-    return [MenuPublic.from_db(menu) for menu in menus]
-
-
-@router.get("/menus/{menu_id}", response_model=MenuPublic)
-def get_menu(menu_id: int, session: SessionDep):
-    """Détail d'un menu."""
-    menu = session.get(Menu, menu_id)
-    if menu is None or not menu.active:
-        raise HTTPException(status_code=404, detail="Menu not found")
-    return MenuPublic.from_db(menu)
-
-
 @router.get("/products", response_model=list[ProductPublic])
 def list_products(session: SessionDep):
     """Liste les produits actifs avec leur stock."""
