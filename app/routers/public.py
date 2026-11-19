@@ -4,12 +4,12 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 
-from app.database import get_session
+from app.database import db
 from app.models import Closure, Menu, MenuPublic, PlanningDay, Product, ProductPublic
 
 router = APIRouter(prefix="/api", tags=["public"])
 
-SessionDep = Annotated[Session, Depends(get_session)]
+SessionDep = Annotated[Session, Depends(db.get_session)]
 
 MAX_PLANNING_DAYS = 366  # évite qu'un client demande un planning de plusieurs années
 
