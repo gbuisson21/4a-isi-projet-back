@@ -14,10 +14,10 @@ class MenuDAO:
     def __init__(self, db: Session):
         self.session = db
 
-    def get_by_date(self, date: date | None = None) -> list[MenuPublic]:
+    def get_by_date(self, date: date, page: int, size: int) -> list[MenuPublic]:
         query = select(Menu).where(Menu.active == True)  # noqa: E712
-        if date is not None:
-            query = query.where(Menu.start_date <= date, Menu.end_date >= date)
+        query = query.where(Menu.start_date <= date, Menu.end_date >= date).limit(size).offset(size * page)
+
         menus = self.session.exec(query.order_by(Menu.id)).all()
         return [MenuPublic.from_db(menu) for menu in menus]
 

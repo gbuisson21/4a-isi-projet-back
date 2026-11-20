@@ -11,12 +11,12 @@ MAX_PLANNING_DAYS = 366  # évite qu'un client demande un planning de plusieurs 
 
 
 @router.get("/menus", response_model=list[MenuPublic])
-def list_menus(date: date, menu_service: MenuServiceDep):
+def list_menus(date: date, menu_service: MenuServiceDep, page: int, size: int):
     """Liste les menus actifs avec leurs produits.
 
     Avec `?date=YYYY-MM-DD`, ne renvoie que les menus disponibles ce jour-là.
     """
-    return menu_service.get_by_date(date)
+    return menu_service.get_by_date(date, page, size)
 
 
 @router.get("/menus/{menu_id}", response_model=MenuPublic)
