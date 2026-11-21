@@ -27,3 +27,10 @@ class MenuDAO:
         if menu is None or not menu.active:
             raise HTTPException(status_code=404, detail="Menu not found")
         return MenuPublic.from_db(menu)
+
+    def get_active_overlapping(self, start_date: date, end_date: date) -> list[Menu]:
+        query = select(Menu).where(Menu.active.is_(True), Menu.start_date <= end_date,
+                                   Menu.end_date >= start_date).order_by(Menu.id)
+
+        menus = self.session.exec(query).all()
+        return menus
