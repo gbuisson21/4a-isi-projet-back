@@ -1,12 +1,11 @@
 from fastapi import HTTPException
-from sqlmodel import select
+from sqlmodel import select, Session
 
-from app.dependency import SessionDep
 from app.models import Product, ProductPublic
 
 
 class ProductDao:
-    def __init__(self, session: SessionDep):
+    def __init__(self, session: Session):
         self.session = session
 
     def get_all(self, page: int = 0, size: int = 15):
