@@ -11,8 +11,8 @@ SessionDep = Annotated[Session, Depends(db.get_session())]
 
 
 class MenuDAO:
-    def __init__(self, db: Session):
-        self.session = db
+    def __init__(self, session: Session):
+        self.session = session
 
     def get_by_date(self, date: date, page: int, size: int) -> list[MenuPublic]:
         query = select(Menu).where(Menu.active == True)  # noqa: E712
