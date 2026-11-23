@@ -225,3 +225,7 @@ __marimo__/
 
 # Base SQLite locale
 *.db
+
+
+tables.sql
+data.sql
