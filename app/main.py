@@ -7,6 +7,12 @@ from app.config import FRONT_DIR
 from app.database import Database
 from app.routers import menu_controller, product_controller, planning_controller
 
+from dotenv import load_dotenv
+
+
+load_dotenv() 
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     yield

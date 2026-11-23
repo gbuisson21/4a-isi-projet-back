@@ -81,3 +81,17 @@ class PlanningDay(SQLModel):
     is_closed: bool
     closure_reason: str | None
     menus: list[MenuPublic]
+
+
+class User(SQLModel):
+    id: int
+    name: str
+    admin: bool
+    locked: bool
+
+    def data(self):
+        return {"id": self.id,  "name": self.name, "admin" : self.admin, "locked": self.locked}
+
+class Token(SQLModel):
+    access_token: str
+    token_type: str
