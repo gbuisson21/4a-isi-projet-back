@@ -84,7 +84,9 @@ class PlanningDay(SQLModel):
 
 
 class User(SQLModel):
-    id: int
+    __tablename__ = "users"
+    id: int | None = Field(default=None, primary_key=True)
+
     name: str
     admin: bool
     locked: bool
@@ -95,3 +97,18 @@ class User(SQLModel):
 class Token(SQLModel):
     access_token: str
     token_type: str
+
+class UserRegister:
+    def __init__(self, name, password, mail):
+        self.name = name
+        self.password = password
+        self.mail = mail
+    
+
+class UserAuth:
+    __tablename__ = "user_auth"
+    def __init__(self, id, mail, password):
+        self.id = id
+        self.mail = mail
+        self.password = password
+
