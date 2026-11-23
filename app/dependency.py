@@ -11,7 +11,10 @@ from app.services.menu_service import MenuService
 from app.services.planning_service import PlanningService
 from app.services.product_service import ProductService
 
-from app.services.token_service import TokenServide
+from app.services.token_service import TokenService
+
+from app.dao.user_dao import UserDao
+from app.services.user_service import UserService
 
 SessionDep = Annotated[Session, Depends(db.get_session)]
 
@@ -39,9 +42,14 @@ def get_planning_dao(session: SessionDep) -> PlanningDao:
 def get_planning_service(session: SessionDep) -> PlanningService:
     return PlanningService(get_planning_dao(session))
 
-def get_token_service() -> TokenServide:
-    return TokenServide()
+def get_token_service() -> TokenService:
+    return TokenService()
 
+def get_user_dao(session: SessionDep) -> UserDao:
+    return UserDao(session)
+
+def get_user_service(session: SessionDep) -> UserService:
+    return UserService(dao=get_user_dao(session=session),tokenService=get_token_service())
 
 
 MenuDAODep = Annotated[MenuDAO, Depends(get_menu_dao)]
@@ -53,4 +61,11 @@ ProductServiceDep = Annotated[ProductService, Depends(get_product_service)]
 PlanningDaoDep = Annotated[PlanningDao, Depends(get_planning_dao)]
 PlanningServiceDep = Annotated[PlanningService, Depends(get_planning_service)]
 
-TokenServiceDep = Annotated[TokenServide, Depends(get_token_service)]
+TokenServiceDep = Annotated[TokenService, Depends(get_token_service)]
+
+UserDaoDep = Annotated[UserDao, Depends(get_user_dao)]
+
+UserServiceDep = Annotated[UserService, Depends(get_user_service)]
+
+
+

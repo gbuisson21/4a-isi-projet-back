@@ -7,6 +7,8 @@ from app.database import db
 from app.dependency import ProductServiceDep
 from app.models import Product, ProductPublic
 
+
+
 router = APIRouter(prefix="/api", tags=["public"])
 
 MAX_PLANNING_DAYS = 366  # évite qu'un client demande un planning de plusieurs années

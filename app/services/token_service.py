@@ -5,7 +5,7 @@ import datetime
 
 
 
-class TokenServide:
+class TokenService:
     def __init__(self) -> None:
         self.__secret = os.environ['SECRETJWT']
         self.ALGORITHM = "ES256"

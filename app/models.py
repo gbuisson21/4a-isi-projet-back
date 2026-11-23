@@ -93,6 +93,9 @@ class User(SQLModel):
 
     def data(self):
         return {"id": self.id,  "name": self.name, "admin" : self.admin, "locked": self.locked}
+    
+
+
 
 class Token(SQLModel):
     access_token: str
@@ -107,8 +110,8 @@ class UserRegister:
 
 class UserAuth:
     __tablename__ = "user_auth"
-    def __init__(self, id, mail, password):
-        self.id = id
-        self.mail = mail
-        self.password = password
+    id : int
+    mail : str
+    password : str
+        
 
