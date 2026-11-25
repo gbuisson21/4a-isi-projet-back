@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from app.config import FRONT_DIR
-from app.routers.admin import admin_product_controller
+from app.routers.admin import admin_product_controller, admin_menu_controller
 
 from app.routers import menu_controller, product_controller, planning_controller, user_controller
 
