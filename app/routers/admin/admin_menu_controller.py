@@ -6,7 +6,7 @@ from app.models import MenuPublic, MenuInput, MenuUpdateInput
 router = APIRouter(prefix="/api/admin/menus", tags=["admin", "menus"])
 
 
-@router.post("/", response_model=MenuPublic, status_code=201)
+@router.post("", response_model=MenuPublic, status_code=201)
 def create_menu(menu: MenuInput, menu_service: MenuServiceDep):
     return menu_service.create_menu(menu)
 

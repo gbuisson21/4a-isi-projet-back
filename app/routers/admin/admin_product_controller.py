@@ -6,7 +6,7 @@ from app.models import ProductPublic, ProductInput, ProductUpdateInput, ProductS
 router = APIRouter(prefix="/api/admin/products", tags=["admin", "products"])
 
 
-@router.post("/", response_model=ProductPublic, status_code=201)
+@router.post("", response_model=ProductPublic, status_code=201)
 def create_product(product: ProductInput, product_service: ProductServiceDep):
     return product_service.create_product(product)
 
