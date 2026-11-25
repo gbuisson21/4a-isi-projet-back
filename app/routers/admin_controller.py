@@ -14,3 +14,8 @@ def create_product(product: ProductInput, product_service: ProductServiceDep):
 @router.put("/products/{id_product}", response_model=ProductPublic, status_code=200)
 def update_product(id_product: int, product: ProductUpdateInput, product_service: ProductServiceDep):
     return product_service.update_product(id_product, product)
+
+
+@router.delete("/products/{product_id}", status_code=200)
+def delete_product(product_id: int, product_service: ProductServiceDep):
+    return product_service.delete_product(product_id)

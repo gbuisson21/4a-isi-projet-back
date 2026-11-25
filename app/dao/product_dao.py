@@ -43,3 +43,13 @@ class ProductDao:
         self.__session.refresh(db_product)
         return ProductPublic.from_db(db_product)
 
+    def delete_product(self, product_id: int):
+        product = self.__session.get(Product, product_id)
+
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found")
+
+        self.__session.delete(product)
+        self.__session.commit()
+        return True
+

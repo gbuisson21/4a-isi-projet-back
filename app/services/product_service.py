@@ -17,3 +17,6 @@ class ProductService:
 
     def update_product(self, id_product: int, product: ProductUpdateInput):
         return self.__dao.update_product(id_product, product)
+
+    def delete_product(self, product_id: int):
+        return self.__dao.delete_product(product_id)
