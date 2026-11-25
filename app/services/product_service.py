@@ -1,5 +1,5 @@
 from app.dao.product_dao import ProductDao
-from app.models import ProductInput, ProductPublic, ProductUpdateInput
+from app.models import ProductInput, ProductPublic, ProductUpdateInput, ProductStockUpdateInput
 
 
 class ProductService:
@@ -20,3 +20,6 @@ class ProductService:
 
     def delete_product(self, product_id: int):
         return self.__dao.delete_product(product_id)
+
+    def update_stock(self, product_id: int, product_stock: ProductStockUpdateInput):
+        return self.__dao.update_stock(product_id, product_stock)
