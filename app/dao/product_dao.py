@@ -1,7 +1,7 @@
 from fastapi import HTTPException
-from sqlmodel import select, Session
+from sqlmodel import select, Session, col
 
-from app.models import Product, ProductPublic, ProductInput, ProductUpdateInput, ProductStockUpdateInput
+from app.models import Product, ProductPublic, ProductInput, ProductUpdateInput, ProductStockUpdateInput, Menu
 
 
 class ProductDao:
@@ -23,7 +23,7 @@ class ProductDao:
         return ProductPublic.from_db(product)
 
     def create_product(self, product: ProductInput) -> ProductPublic:
-        product_with_id = Product(name=product.name, price_cents=round(product.price*100), stock=product.stock)
+        product_with_id = Product(name=product.name, price_cents=round(product.price * 100), stock=product.stock)
         self.__session.add(product_with_id)
         self.__session.commit()
 
@@ -49,6 +49,13 @@ class ProductDao:
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
 
+        # TODO Check si le produit est reservé
+        menus_with_product_query = select(Menu).where(col(Menu.products).any(Product.id == product_id))
+        menus_with_product = self.__session.exec(menus_with_product_query).all()
+
+        if len(menus_with_product) > 0:
+            raise HTTPException(status_code=409, detail="Product used in menus, please first remove those menus")
+
         self.__session.delete(product)
         self.__session.commit()
         return True
@@ -66,4 +73,3 @@ class ProductDao:
         self.__session.commit()
         self.__session.refresh(db_product)
         return ProductPublic.from_db(db_product)
-
