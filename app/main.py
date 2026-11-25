@@ -4,8 +4,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from app.config import FRONT_DIR
-from app.database import Database
-from app.routers import menu_controller, product_controller, planning_controller, admin_controller
+from app.routers.admin import admin_product_controller
 
 from app.routers import menu_controller, product_controller, planning_controller, user_controller
 
@@ -25,7 +24,7 @@ app = FastAPI(title="Pol-eat-heck API", lifespan=lifespan)
 app.include_router(menu_controller.router)
 app.include_router(product_controller.router)
 app.include_router(planning_controller.router)
-app.include_router(admin_controller.router)
+app.include_router(admin_product_controller.router)
 app.include_router(user_controller.router)
 
 
