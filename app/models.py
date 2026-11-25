@@ -2,6 +2,7 @@
 from datetime import date
 
 from sqlmodel import Field, Relationship, SQLModel
+from websockets import InvalidParameterValue
 
 
 # ---------- Tables ----------
@@ -81,3 +82,22 @@ class PlanningDay(SQLModel):
     is_closed: bool
     closure_reason: str | None
     menus: list[MenuPublic]
+
+
+# ---------- Modèles d'entrée (format d'API.md, prix en euros) ----------
+
+class ProductInput(SQLModel):
+    name: str
+    price: float
+    stock: int
+
+
+class ProductUpdateInput(SQLModel):
+    name: str | None
+    price: float | None
+
+    def to_db_dict(self) -> dict:
+        data = self.model_dump(exclude_unset=True)
+        if "price" in data:
+            data["price_cents"] = round(data.pop("price") * 100)
+        return data
