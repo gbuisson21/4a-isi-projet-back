@@ -1,8 +1,8 @@
 """Modèles SQLModel : correspondent aux tables de 4a-isi-projet-db/tables.sql."""
 from datetime import date
 
+from pydantic import field_validator, model_validator
 from sqlmodel import Field, Relationship, SQLModel
-from websockets import InvalidParameterValue
 
 
 # ---------- Tables ----------
@@ -138,7 +138,29 @@ class UserLogin(SQLModel):
 class ProductInput(SQLModel):
     name: str
     price: float
-    stock: int
+    stock: int = 0
+
+    @field_validator("price")
+    @classmethod
+    def price_cents_validator(cls, v):
+        if v <= 0:
+            raise ValueError("Price must be greater than 0")
+        return v
+
+    @field_validator("stock")
+    @classmethod
+    def stock_validator(cls, v):
+        if v <= 0:
+            raise ValueError("Stock must be greater than 0")
+        return v
+
+    @field_validator("name")
+    @classmethod
+    def name_not_blank(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("name cannot be empty")
+        return v
 
 
 class ProductUpdateInput(SQLModel):
@@ -151,12 +173,34 @@ class ProductUpdateInput(SQLModel):
             data["price_cents"] = round(data.pop("price") * 100)
         return data
 
+    @field_validator("name")
+    @classmethod
+    def name_not_blank(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("name cannot be empty")
+        return v
+
+    @field_validator("price")
+    @classmethod
+    def price_cents_validator(cls, v):
+        if v <= 0:
+            raise ValueError("Price must be greater than 0")
+        return v
+
 
 class ProductStockUpdateInput(SQLModel):
     stock: int
 
     def to_db_dict(self):
         return {"stock": self.stock}
+
+    @field_validator("stock")
+    @classmethod
+    def stock_validator(cls, v):
+        if v <= 0:
+            raise ValueError("Stock must be greater than 0")
+        return v
 
 
 class MenuInput(SQLModel):
@@ -166,6 +210,26 @@ class MenuInput(SQLModel):
     end_date: date
     product_ids: list[int]
 
+    @field_validator("name")
+    @classmethod
+    def name_not_blank(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("name cannot be empty")
+        return v
+
+    @field_validator("price")
+    @classmethod
+    def price_cents_validator(cls, v):
+        if v <= 0:
+            raise ValueError("Price must be greater than 0")
+        return v
+
+    @model_validator(mode="after")
+    def date_validator(self):
+        if self.start_date > self.end_date:
+            raise ValueError("Start date must be before end date")
+        return self
 
 class MenuUpdateInput(SQLModel):
     name: str | None
@@ -180,6 +244,35 @@ class MenuUpdateInput(SQLModel):
             data["price_cents"] = round(data.pop("price") * 100)
         return data
 
+    @field_validator("name")
+    @classmethod
+    def name_not_blank(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("name cannot be empty")
+        return v
+
+    @field_validator("price")
+    @classmethod
+    def price_cents_validator(cls, v):
+        if v <= 0:
+            raise ValueError("Price must be greater than 0")
+        return v
+
+    @model_validator(mode="after")
+    def date_validator(self):
+        if self.start_date and self.end_date and self.start_date > self.end_date:
+            raise ValueError("Start date must be before end date")
+        return self
+
+
 class ClosureInput(SQLModel):
     closure_date: str
     reason: str | None
+
+    @field_validator("closure_date")
+    @classmethod
+    def closure_date_validator(cls, v):
+        if date.fromisoformat(v.strip()) is None:
+            raise ValueError("Closure date must be in YYYY-MM-DD format")
+        return v
