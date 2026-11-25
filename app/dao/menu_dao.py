@@ -1,15 +1,10 @@
 from datetime import date
-from typing import Annotated
 
 from fastapi import HTTPException, Depends
 from sqlmodel import select, Session
 
 from app.dao.product_dao import ProductDao
-from app.database import db
 from app.models import Menu, MenuPublic, MenuInput, MenuUpdateInput
-
-SessionDep = Annotated[Session, Depends(db.get_session())]
-
 
 class MenuDAO:
     def __init__(self, session: Session, product_dao: ProductDao):
