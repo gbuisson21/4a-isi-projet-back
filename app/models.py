@@ -107,7 +107,7 @@ class PlanningDay(SQLModel):
 class ClosurePublic(SQLModel):
     id: int
     closure_date: date
-    reason: str | None
+    reason: str | None = None
 
     @classmethod
     def from_db(self, closure: Closure) -> "ClosurePublic":
@@ -150,7 +150,7 @@ class ProductInput(SQLModel):
     @field_validator("stock")
     @classmethod
     def stock_validator(cls, v):
-        if v <= 0:
+        if v < 0:
             raise ValueError("Stock must be greater than 0")
         return v
 
@@ -164,8 +164,8 @@ class ProductInput(SQLModel):
 
 
 class ProductUpdateInput(SQLModel):
-    name: str | None
-    price: float | None
+    name: str | None = None
+    price: float | None = None
 
     def to_db_dict(self) -> dict:
         data = self.model_dump(exclude_unset=True)
@@ -175,7 +175,8 @@ class ProductUpdateInput(SQLModel):
 
     @field_validator("name")
     @classmethod
-    def name_not_blank(cls, v: str) -> str:
+    def name_not_blank(cls, v):
+        if v is None: return v
         v = v.strip()
         if not v:
             raise ValueError("name cannot be empty")
@@ -184,6 +185,7 @@ class ProductUpdateInput(SQLModel):
     @field_validator("price")
     @classmethod
     def price_cents_validator(cls, v):
+        if v is None: return v
         if v <= 0:
             raise ValueError("Price must be greater than 0")
         return v
@@ -198,7 +200,7 @@ class ProductStockUpdateInput(SQLModel):
     @field_validator("stock")
     @classmethod
     def stock_validator(cls, v):
-        if v <= 0:
+        if v < 0:
             raise ValueError("Stock must be greater than 0")
         return v
 
@@ -225,18 +227,26 @@ class MenuInput(SQLModel):
             raise ValueError("Price must be greater than 0")
         return v
 
+    @field_validator("product_ids")
+    @classmethod
+    def product_ids_validator(cls, v):
+        if len(v) < 1:
+            raise ValueError("There must be at least one product in the menu")
+        return v
+
     @model_validator(mode="after")
     def date_validator(self):
         if self.start_date > self.end_date:
             raise ValueError("Start date must be before end date")
         return self
 
+
 class MenuUpdateInput(SQLModel):
-    name: str | None
-    price: float | None
-    start_date: date | None
-    end_date: date | None
-    product_ids: list[int] | None
+    name: str | None = None
+    price: float | None = None
+    start_date: date | None = None
+    end_date: date | None = None
+    product_ids: list[int] | None = None
 
     def to_db_dict(self):
         data = self.model_dump(exclude_unset=True)
@@ -247,6 +257,7 @@ class MenuUpdateInput(SQLModel):
     @field_validator("name")
     @classmethod
     def name_not_blank(cls, v: str) -> str:
+        if v is None: return v
         v = v.strip()
         if not v:
             raise ValueError("name cannot be empty")
@@ -255,6 +266,7 @@ class MenuUpdateInput(SQLModel):
     @field_validator("price")
     @classmethod
     def price_cents_validator(cls, v):
+        if v is None: return v
         if v <= 0:
             raise ValueError("Price must be greater than 0")
         return v
@@ -267,7 +279,7 @@ class MenuUpdateInput(SQLModel):
 
 
 class ClosureInput(SQLModel):
-    closure_date: str
+    date: str
     reason: str | None
 
     @field_validator("closure_date")
@@ -275,4 +287,4 @@ class ClosureInput(SQLModel):
     def closure_date_validator(cls, v):
         if date.fromisoformat(v.strip()) is None:
             raise ValueError("Closure date must be in YYYY-MM-DD format")
-        return v
+        return v.strip()

@@ -43,7 +43,7 @@ class PlanningDao:
         return planning
 
     def create_closure(self, closure: ClosureInput) -> ClosurePublic:
-        closure_with_id = Closure(closing_date=date.fromisoformat(closure.closure_date),
+        closure_with_id = Closure(closing_date=date.fromisoformat(closure.date),
                                   reason=closure.reason if closure.reason else None)
         print(closure_with_id)
         self.__session.add(closure_with_id)
