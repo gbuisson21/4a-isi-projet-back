@@ -108,3 +108,12 @@ class ProductStockUpdateInput(SQLModel):
 
     def to_db_dict(self):
         return {"stock": self.stock}
+
+
+class MenuInput(SQLModel):
+    name: str
+    price: float
+    start_date: date
+    end_date: date
+    product_ids: list[int]
+

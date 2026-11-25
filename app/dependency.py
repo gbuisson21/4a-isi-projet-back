@@ -15,11 +15,11 @@ SessionDep = Annotated[Session, Depends(db.get_session)]
 
 
 def get_menu_dao(session: SessionDep) -> MenuDAO:
-    return MenuDAO(session)
+    return MenuDAO(session, get_product_dao(session))
 
 
 def get_menu_service(session: SessionDep) -> MenuService:
-    return MenuService(get_menu_dao(session), session)
+    return MenuService(get_menu_dao(session))
 
 
 def get_product_dao(session: SessionDep) -> ProductDao:
