@@ -43,9 +43,15 @@ class PlanningDao:
         return planning
 
     def create_closure(self, closure: ClosureInput) -> ClosurePublic:
+        closure_this_day_query = select(Closure).where(Closure.closing_date == date.fromisoformat(closure.date))
+        closure_this_day = self.__session.get(closure_this_day_query)
+
+        if closure_this_day:
+            raise HTTPException(status_code=409, detail="Day already closed")
+
         closure_with_id = Closure(closing_date=date.fromisoformat(closure.date),
                                   reason=closure.reason if closure.reason else None)
-        print(closure_with_id)
+
         self.__session.add(closure_with_id)
         self.__session.commit()
 
