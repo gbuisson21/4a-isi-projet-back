@@ -2,6 +2,7 @@
 from datetime import date
 
 from sqlmodel import Field, Relationship, SQLModel
+from websockets import InvalidParameterValue
 
 
 # ---------- Tables ----------
@@ -47,6 +48,26 @@ class Closure(SQLModel, table=True):
     reason: str | None = None
 
 
+class UserAuth(SQLModel, table=True):
+    __tablename__ = "user_auth"
+    id: int | None = Field(default=None, primary_key=True)
+    username: str  # mail de connexion
+    password_hash: str
+
+
+class User(SQLModel, table=True):
+    __tablename__ = "users"
+
+    id: int | None = Field(default=None, primary_key=True)
+
+    name: str
+    admin: bool
+    locked: bool
+
+    def data(self):
+        return {"id": self.id, "name": self.name, "admin": self.admin, "locked": self.locked}
+
+
 # ---------- Modèles de réponse (format d'API.md, prix en euros) ----------
 
 class ProductPublic(SQLModel):
@@ -83,42 +104,36 @@ class PlanningDay(SQLModel):
     menus: list[MenuPublic]
 
 
-class User(SQLModel, table= True):
-    __tablename__ = "users"
-
-    id: int | None = Field(default=None, primary_key=True)
-
-    name: str
-    admin: bool
-    locked: bool
-
-    def data(self):
-        return {"id": self.id,  "name": self.name, "admin" : self.admin, "locked": self.locked}
-    
-
-
-
 class Token(SQLModel):
     access_token: str
     token_type: str
 
 
 class UserRegister(SQLModel):
-    name : str
-    mail : str 
-    password : str 
-    
+    name: str
+    mail: str
+    password: str
+
+
 class UserLogin(SQLModel):
-    mail : str
-    password : str
-
-    
-
-class UserAuth(SQLModel, table = True):
-    __tablename__ = "user_auth"
-    id: int | None = Field(default=None, primary_key=True)
-    username : str #mail de connexion
-    password_hash : str
-        
+    mail: str
+    password: str
 
 
+# ---------- Modèles d'entrée (format d'API.md, prix en euros) ----------
+
+class ProductInput(SQLModel):
+    name: str
+    price: float
+    stock: int
+
+
+class ProductUpdateInput(SQLModel):
+    name: str | None
+    price: float | None
+
+    def to_db_dict(self) -> dict:
+        data = self.model_dump(exclude_unset=True)
+        if "price" in data:
+            data["price_cents"] = round(data.pop("price") * 100)
+        return data
