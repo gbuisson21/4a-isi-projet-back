@@ -1,12 +1,12 @@
+from datetime import date
 from typing import Annotated
 
 from fastapi import HTTPException, Depends
 from sqlmodel import select, Session
-from datetime import date
 
 from app.dao.product_dao import ProductDao
 from app.database import db
-from app.models import Menu, MenuPublic, MenuInput, Product, MenuUpdateInput
+from app.models import Menu, MenuPublic, MenuInput, MenuUpdateInput
 
 SessionDep = Annotated[Session, Depends(db.get_session())]
 
@@ -39,7 +39,8 @@ class MenuDAO:
 
     def create_menu(self, menu: MenuInput):
         products = [self.__product_dao.get_by_id(product_id) for product_id in menu.product_ids]
-        menu_db = Menu(name=menu.name, products=products, start_date=menu.start_date, end_date=menu.end_date, price_cents=round(menu.price * 100))
+        menu_db = Menu(name=menu.name, products=products, start_date=menu.start_date, end_date=menu.end_date,
+                       price_cents=round(menu.price * 100))
 
         self.__session.add(menu_db)
         self.__session.commit()
@@ -61,3 +62,15 @@ class MenuDAO:
         self.__session.commit()
         self.__session.refresh(menu_db)
         return MenuPublic.from_db(menu_db)
+
+    def delete_menu(self, menu_id: int):
+        menu = self.__session.get(Menu, menu_id)
+
+        # TODO: Check for pending reservations
+
+        if not menu:
+            raise HTTPException(status_code=404, detail="Menu not found")
+
+        self.__session.delete(menu)
+        self.__session.commit()
+        return True

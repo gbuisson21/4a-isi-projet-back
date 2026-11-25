@@ -21,3 +21,6 @@ class MenuService:
 
     def update_menu(self, menu_id: int, menu: MenuUpdateInput):
         return self.__dao.update_menu(menu_id, menu)
+
+    def delete_menu(self, menu_id: int):
+        return self.__dao.delete_menu(menu_id)
