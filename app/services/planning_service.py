@@ -13,3 +13,7 @@ class PlanningService:
 
     def create_closure(self, closure: ClosureInput):
         return self.__dao.create_closure(closure)
+
+
+    def delete_closure(self, closure_id: int):
+        return self.__dao.delete_closure(closure_id)

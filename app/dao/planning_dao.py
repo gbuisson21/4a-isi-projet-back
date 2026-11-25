@@ -1,5 +1,5 @@
 from datetime import date, timedelta
-
+from fastapi import HTTPException
 from sqlmodel import Session, select
 
 from app.dao.menu_dao import MenuDAO
@@ -43,9 +43,19 @@ class PlanningDao:
         return planning
 
     def create_closure(self, closure: ClosureInput) -> ClosurePublic:
-        closure_with_id = Closure(closing_date=date.fromisoformat(closure.closure_date), reason=closure.reason if closure.reason else None)
+        closure_with_id = Closure(closing_date=date.fromisoformat(closure.closure_date),
+                                  reason=closure.reason if closure.reason else None)
         print(closure_with_id)
         self.__session.add(closure_with_id)
         self.__session.commit()
 
         return ClosurePublic.from_db(closure_with_id)
+
+    def delete_closure(self, closure_id: int):
+        closure = self.__session.get(Closure, closure_id)
+        if not closure:
+            raise HTTPException(status_code=404, detail="Closure does not exist")
+
+        self.__session.delete(closure)
+        self.__session.commit()
+        return True
