@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from sqlmodel import select, Session
 
-from app.models import Product, ProductPublic, ProductInput, ProductUpdateInput
+from app.models import Product, ProductPublic, ProductInput, ProductUpdateInput, ProductStockUpdateInput
 
 
 class ProductDao:
@@ -52,4 +52,18 @@ class ProductDao:
         self.__session.delete(product)
         self.__session.commit()
         return True
+
+    def update_stock(self, product_id: int, product_stock: ProductStockUpdateInput):
+        db_product = self.__session.get(Product, product_id)
+
+        if not db_product:
+            raise HTTPException(status_code=404, detail="Product not found")
+
+        product_data = product_stock.to_db_dict()
+
+        db_product.sqlmodel_update(product_data)
+        self.__session.add(db_product)
+        self.__session.commit()
+        self.__session.refresh(db_product)
+        return ProductPublic.from_db(db_product)
 

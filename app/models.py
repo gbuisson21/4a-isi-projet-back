@@ -101,3 +101,10 @@ class ProductUpdateInput(SQLModel):
         if "price" in data:
             data["price_cents"] = round(data.pop("price") * 100)
         return data
+
+
+class ProductStockUpdateInput(SQLModel):
+    stock: int
+
+    def to_db_dict(self):
+        return {"stock": self.stock}
