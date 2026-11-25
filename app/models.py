@@ -84,6 +84,19 @@ class PlanningDay(SQLModel):
     menus: list[MenuPublic]
 
 
+class ClosurePublic(SQLModel):
+    id: int
+    closure_date: date
+    reason: str | None
+
+    @classmethod
+    def from_db(self, closure: Closure) -> "ClosurePublic":
+        return self(
+            id=closure.id,
+            closure_date=closure.closing_date,
+            reason=closure.reason)
+
+
 # ---------- Modèles d'entrée (format d'API.md, prix en euros) ----------
 
 class ProductInput(SQLModel):
@@ -130,3 +143,7 @@ class MenuUpdateInput(SQLModel):
         if "price" in data:
             data["price_cents"] = round(data.pop("price") * 100)
         return data
+
+class ClosureInput(SQLModel):
+    closure_date: str
+    reason: str | None
