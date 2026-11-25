@@ -153,3 +153,16 @@ class MenuInput(SQLModel):
     end_date: date
     product_ids: list[int]
 
+
+class MenuUpdateInput(SQLModel):
+    name: str | None
+    price: float | None
+    start_date: date | None
+    end_date: date | None
+    product_ids: list[int] | None
+
+    def to_db_dict(self):
+        data = self.model_dump(exclude_unset=True)
+        if "price" in data:
+            data["price_cents"] = round(data.pop("price") * 100)
+        return data

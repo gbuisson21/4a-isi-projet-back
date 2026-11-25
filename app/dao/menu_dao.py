@@ -44,3 +44,20 @@ class MenuDAO:
         self.__session.add(menu_db)
         self.__session.commit()
         return MenuPublic.from_db(menu_db)
+
+    def update_menu(self, menu_id: int, menu: MenuUpdateInput):
+        menu_db = self.__session.get(Menu, menu_id)
+
+        if not menu_db:
+            raise HTTPException(status_code=404, detail="Product not found")
+
+        menu_data = menu.to_db_dict()
+
+        if menu.product_ids:
+            menu_data["products"] = [self.__product_dao.get_by_id(product_id) for product_id in menu.product_ids]
+
+        menu_db.sqlmodel_update(menu_data)
+        self.__session.add(menu_db)
+        self.__session.commit()
+        self.__session.refresh(menu_db)
+        return MenuPublic.from_db(menu_db)

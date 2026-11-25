@@ -25,6 +25,7 @@ app.include_router(menu_controller.router)
 app.include_router(product_controller.router)
 app.include_router(planning_controller.router)
 app.include_router(admin_product_controller.router)
+app.include_router(admin_menu_controller.router)
 app.include_router(user_controller.router)
 
 
