@@ -8,8 +8,8 @@ import datetime
 class TokenService:
     def __init__(self) -> None:
         self.__secret = os.environ['SECRETJWT']
-        self.ALGORITHM = "ES256"
-        self.ACCESS_TOKEN_EXPIRE_MINUTES = datetime.timedelta(20)
+        self.ALGORITHM = "HS256"
+        self.ACCESS_TOKEN_EXPIRE_MINUTES = datetime.timedelta(minutes=20)
 
 
     def create_token(self, user : User):

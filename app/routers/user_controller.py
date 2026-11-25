@@ -1,12 +1,8 @@
-from typing import Annotated
-
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session, select
+
 
 from app.database import db
-from app.dependency import ProductServiceDep
-from app.models import Product, ProductPublic
-from app.models import UserRegister
+from app.models import UserRegister, UserLogin
 
 from email_validator import EmailNotValidError, validate_email
 
@@ -33,4 +29,12 @@ def create_user(userRegister : UserRegister, service  : UserServiceDep):
 
     return service.register(userRegister)
 
+@router.post("/user/")
+def login_user(userLogin : UserLogin, service  : UserServiceDep):
+    try:
+        info = validate_email(userLogin.mail)
 
+    except EmailNotValidError as e:
+        raise HTTPException(status_code=417, detail="Bad Email")
+
+    return service.login(userLogin)

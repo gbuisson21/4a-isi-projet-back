@@ -5,13 +5,22 @@ from app.models import Product, ProductPublic
 
 from app.models import User, UserRegister, UserAuth
 
+from app.services.hash_service import HashService
+
 
 class UserDao:
-    def __init__(self, session: Session):
+    def __init__(self, session: Session, hashService : HashService):
         self.session = session
+        self.hashService = hashService
 
-    def get_user_by_mail(self, mail:str) -> UserAuth| None:
-        query = select(UserAuth).where(UserAuth.mail == mail)
+    def get_user_by_mail(self, username :str) -> UserAuth| None:
+        query = select(UserAuth).where(UserAuth.username == username)
+        user = self.session.exec(query).first()
+        
+        return user
+
+    def get_user_by_id(self, id :int) -> User | None:
+        query = select(User).where(User.id == id)
         user = self.session.exec(query).first()
         
         return user
@@ -23,14 +32,10 @@ class UserDao:
             self.session.add(user)
             self.session.commit()
             
-            userAuth = UserAuth()
+            userAuth = UserAuth(id=user.id, username = userRegister.mail, password_hash =self.hashService.hash(userRegister.password))
 
             if not user.id : 
                 raise HTTPException(status_code=500, detail="Internal Error !")
-            
-            userAuth.id = user.id
-            userAuth.mail = userRegister.mail
-            userAuth.password = userRegister.password
 
             self.session.add(userAuth)
             self.session.commit()

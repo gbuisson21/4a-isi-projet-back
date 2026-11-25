@@ -83,8 +83,9 @@ class PlanningDay(SQLModel):
     menus: list[MenuPublic]
 
 
-class User(SQLModel):
+class User(SQLModel, table= True):
     __tablename__ = "users"
+
     id: int | None = Field(default=None, primary_key=True)
 
     name: str
@@ -101,17 +102,23 @@ class Token(SQLModel):
     access_token: str
     token_type: str
 
-class UserRegister:
-    def __init__(self, name, password, mail):
-        self.name = name
-        self.password = password
-        self.mail = mail
-    
 
-class UserAuth:
-    __tablename__ = "user_auth"
-    id : int
+class UserRegister(SQLModel):
+    name : str
+    mail : str 
+    password : str 
+    
+class UserLogin(SQLModel):
     mail : str
     password : str
+
+    
+
+class UserAuth(SQLModel, table = True):
+    __tablename__ = "user_auth"
+    id: int | None = Field(default=None, primary_key=True)
+    username : str #mail de connexion
+    password_hash : str
         
+
 

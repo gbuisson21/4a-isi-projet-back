@@ -4,3 +4,4 @@ sqlmodel
 sqlalchemy
 
 email_validator
+argon2-cffi
