@@ -81,3 +81,44 @@ class PlanningDay(SQLModel):
     is_closed: bool
     closure_reason: str | None
     menus: list[MenuPublic]
+
+
+class User(SQLModel, table= True):
+    __tablename__ = "users"
+
+    id: int | None = Field(default=None, primary_key=True)
+
+    name: str
+    admin: bool
+    locked: bool
+
+    def data(self):
+        return {"id": self.id,  "name": self.name, "admin" : self.admin, "locked": self.locked}
+    
+
+
+
+class Token(SQLModel):
+    access_token: str
+    token_type: str
+
+
+class UserRegister(SQLModel):
+    name : str
+    mail : str 
+    password : str 
+    
+class UserLogin(SQLModel):
+    mail : str
+    password : str
+
+    
+
+class UserAuth(SQLModel, table = True):
+    __tablename__ = "user_auth"
+    id: int | None = Field(default=None, primary_key=True)
+    username : str #mail de connexion
+    password_hash : str
+        
+
+
