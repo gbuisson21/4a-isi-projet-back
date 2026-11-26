@@ -282,7 +282,7 @@ class ClosureInput(SQLModel):
     date: str
     reason: str | None
 
-    @field_validator("closure_date")
+    @field_validator("date")
     @classmethod
     def closure_date_validator(cls, v):
         if date.fromisoformat(v.strip()) is None:
