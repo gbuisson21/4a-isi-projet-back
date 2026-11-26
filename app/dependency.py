@@ -46,10 +46,10 @@ def get_token_service() -> TokenService:
     return TokenService()
 
 def get_user_dao(session: SessionDep,) -> UserDao:
-    return UserDao(session, get_hash_service())
+    return UserDao(session)
 
 def get_user_service(session: SessionDep) -> UserService:
-    return UserService(dao=get_user_dao(session=session),tokenService=get_token_service(), hashService=get_hash_service())
+    return UserService(dao=get_user_dao(session=session),token_service=get_token_service(), hash_service=get_hash_service())
 
 
 def get_hash_service() -> HashService:

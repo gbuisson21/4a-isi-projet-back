@@ -1,17 +1,14 @@
 from fastapi import HTTPException
 from sqlmodel import select, Session
 
-from app.models import Product, ProductPublic
 
 from app.models import User, UserRegister, UserAuth
 
-from app.services.hash_service import HashService
 
 
 class UserDao:
-    def __init__(self, session: Session, hashService : HashService):
+    def __init__(self, session: Session):
         self.session = session
-        self.hashService = hashService
 
     def get_user_by_mail(self, username :str) -> UserAuth| None:
         query = select(UserAuth).where(UserAuth.username == username)
@@ -26,18 +23,18 @@ class UserDao:
         return user
 
 
-    def create_user(self, userRegister : UserRegister):
-        if not self.get_user_by_mail(userRegister.mail):
-            user = User(name=userRegister.name , admin=False, locked=False)
+    def create_user(self, user_register : UserRegister, password_hash : str):
+        if not self.get_user_by_mail(user_register.mail):
+            user = User(name=user_register.name , admin=False, locked=False)
             self.session.add(user)
             self.session.commit()
             
-            userAuth = UserAuth(id=user.id, username = userRegister.mail, password_hash =self.hashService.hash(userRegister.password))
+            user_auth = UserAuth(id=user.id, username = user_register.mail, password_hash =password_hash)
 
             if not user.id : 
                 raise HTTPException(status_code=500, detail="Internal Error !")
 
-            self.session.add(userAuth)
+            self.session.add(user_auth)
             self.session.commit()
 
             return user

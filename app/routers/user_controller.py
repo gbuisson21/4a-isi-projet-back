@@ -13,28 +13,28 @@ router = APIRouter(prefix="/api", tags=["public"])
 
 
 
-@router.post("/users/")
-def create_user(userRegister : UserRegister, service  : UserServiceDep):
+@router.post("/user/register")
+def create_user(user_register : UserRegister, service  : UserServiceDep):
     try:
-        info = validate_email(userRegister.mail)
+        info = validate_email(user_register.mail)
 
     except EmailNotValidError as e:
         raise HTTPException(status_code=417, detail="Bad Email")
 
-    if len(userRegister.name) < 1:
+    if len(user_register.name) < 1:
         raise HTTPException(status_code=417, detail="Name too short")
 
-    if len(userRegister.password) < 8:
+    if len(user_register.password) < 8:
             raise HTTPException(status_code=417, detail="Password too short")
 
-    return service.register(userRegister)
+    return service.register(user_register)
 
-@router.post("/user/")
-def login_user(userLogin : UserLogin, service  : UserServiceDep):
+@router.post("/user/login")
+def login_user(user_login : UserLogin, service  : UserServiceDep):
     try:
-        info = validate_email(userLogin.mail)
+        info = validate_email(user_login.mail)
 
     except EmailNotValidError as e:
         raise HTTPException(status_code=417, detail="Bad Email")
 
-    return service.login(userLogin)
+    return service.login(user_login)
