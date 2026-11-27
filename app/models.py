@@ -1,6 +1,7 @@
 """Modèles SQLModel : correspondent aux tables de 4a-isi-projet-db/tables.sql."""
 from datetime import date
 
+from fastapi.security import OAuth2PasswordBearer
 from pydantic import field_validator, model_validator
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -122,6 +123,13 @@ class Token(SQLModel):
     token_type: str
 
 
+class TokenData(SQLModel):
+    id: int
+    name: str
+    admin: bool
+    locked: bool
+
+
 class UserRegister(SQLModel):
     name: str
     mail: str
@@ -131,6 +139,9 @@ class UserRegister(SQLModel):
 class UserLogin(SQLModel):
     mail: str
     password: str
+
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 # ---------- Modèles d'entrée (format d'API.md, prix en euros) ----------
