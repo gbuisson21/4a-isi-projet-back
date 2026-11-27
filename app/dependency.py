@@ -42,7 +42,7 @@ def get_planning_dao(session: SessionDep) -> PlanningDao:
 
 
 def get_planning_service(session: SessionDep) -> PlanningService:
-    return PlanningService(get_planning_dao(session))
+    return PlanningService(get_planning_dao(session), get_token_service())
 
 
 def get_token_service() -> TokenService:
