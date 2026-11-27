@@ -26,7 +26,7 @@ def get_menu_dao(session: SessionDep) -> MenuDAO:
 
 
 def get_menu_service(session: SessionDep) -> MenuService:
-    return MenuService(get_menu_dao(session))
+    return MenuService(get_menu_dao(session), get_token_service())
 
 
 def get_product_dao(session: SessionDep) -> ProductDao:

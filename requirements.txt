@@ -7,3 +7,4 @@ email_validator
 argon2-cffi
 PyJWT
 python-dotenv
+starlette
