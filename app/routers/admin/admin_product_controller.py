@@ -1,7 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
-from app.dependency import ProductServiceDep
-from app.models import ProductPublic, ProductInput, ProductUpdateInput, ProductStockUpdateInput
+from app.dependency import ProductServiceDep, get_token_data
+from app.models import ProductPublic, ProductInput, ProductUpdateInput, ProductStockUpdateInput, TokenData
 
 router = APIRouter(prefix="/api/admin/products", tags=["admin", "products"])
 
