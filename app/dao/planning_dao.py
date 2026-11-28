@@ -44,7 +44,7 @@ class PlanningDao:
 
     def create_closure(self, closure: ClosureInput) -> ClosurePublic:
         closure_this_day_query = select(Closure).where(Closure.closing_date == date.fromisoformat(closure.date))
-        closure_this_day = self.__session.get(closure_this_day_query)
+        closure_this_day = self.__session.exec(closure_this_day_query).all()
 
         if closure_this_day:
             raise HTTPException(status_code=409, detail="Day already closed")
