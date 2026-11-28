@@ -60,7 +60,7 @@ def get_user_service(session: SessionDep) -> UserService:
 
 def get_token_data(token: str = Depends(oauth2_scheme)) -> TokenData:
     try:
-        return TokenService.parse_token(token)
+        return get_token_service().parse_token(token)
     except InvalidTokenError:
         raise HTTPException(
             status_code=401,

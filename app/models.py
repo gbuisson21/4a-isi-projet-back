@@ -68,6 +68,9 @@ class User(SQLModel, table=True):
     def data(self):
         return {"id": self.id, "name": self.name, "admin": self.admin, "locked": self.locked}
 
+    def user_token_data(self):
+        return {"id": self.id, "sub": self.name, "admin": self.admin, "locked": self.locked}
+
 
 # ---------- Modèles de réponse (format d'API.md, prix en euros) ----------
 
@@ -141,7 +144,7 @@ class UserLogin(SQLModel):
     password: str
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/user/login")
 
 
 # ---------- Modèles d'entrée (format d'API.md, prix en euros) ----------
