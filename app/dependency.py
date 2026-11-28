@@ -34,7 +34,7 @@ def get_product_dao(session: SessionDep) -> ProductDao:
 
 
 def get_product_service(session: SessionDep) -> ProductService:
-    return ProductService(get_product_dao(session))
+    return ProductService(get_product_dao(session), get_token_service())
 
 
 def get_planning_dao(session: SessionDep) -> PlanningDao:
