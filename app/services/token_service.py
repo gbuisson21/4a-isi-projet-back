@@ -28,7 +28,7 @@ class TokenService:
 
     @classmethod
     def is_admin(cls, token: TokenData):
-        return token.admin
+        return token.admin and not token.locked
 
 
     def decode_access_token(self, token: str) -> dict:
