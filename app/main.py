@@ -27,7 +27,6 @@ app.include_router(planning_controller.router)
 app.include_router(admin_product_controller.router)
 app.include_router(admin_menu_controller.router)
 app.include_router(user_controller.router)
-
 app.include_router(admin_planning_controller.router)
 
 # Front-end statique servi à la racine. Monté APRÈS les routers :
