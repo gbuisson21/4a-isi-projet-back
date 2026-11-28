@@ -1,14 +1,13 @@
 from datetime import date, timedelta
 
-from fastapi import HTTPException
+from fastapi import HTTPException, APIRouter
 
 from app.dependency import PlanningServiceDep
 from app.models import PlanningDay
-from app.routers.menu_controller import router
-from app.services.planning_service import PlanningService
 
 MAX_PLANNING_DAYS = 366  # évite qu'un client demande un planning de plusieurs années
 
+router = APIRouter(prefix="/api/", tags=["planning"])
 
 @router.get("/planning", response_model=list[PlanningDay])
 def get_planning(service: PlanningServiceDep, start_date: date | None = None, end_date: date | None = None):

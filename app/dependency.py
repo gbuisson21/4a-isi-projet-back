@@ -1,12 +1,14 @@
 from typing import Annotated
 
-from fastapi import Depends
+from fastapi import Depends, HTTPException
+from jwt import InvalidTokenError
 from sqlmodel import Session
 
 from app.dao.menu_dao import MenuDAO
 from app.dao.planning_dao import PlanningDao
 from app.dao.product_dao import ProductDao
 from app.database import db
+from app.models import oauth2_scheme, TokenData
 from app.services.menu_service import MenuService
 from app.services.planning_service import PlanningService
 from app.services.product_service import ProductService
@@ -20,11 +22,11 @@ SessionDep = Annotated[Session, Depends(db.get_session)]
 
 
 def get_menu_dao(session: SessionDep) -> MenuDAO:
-    return MenuDAO(session)
+    return MenuDAO(session, get_product_dao(session))
 
 
 def get_menu_service(session: SessionDep) -> MenuService:
-    return MenuService(get_menu_dao(session), session)
+    return MenuService(get_menu_dao(session), get_token_service())
 
 
 def get_product_dao(session: SessionDep) -> ProductDao:
@@ -32,7 +34,7 @@ def get_product_dao(session: SessionDep) -> ProductDao:
 
 
 def get_product_service(session: SessionDep) -> ProductService:
-    return ProductService(get_product_dao(session))
+    return ProductService(get_product_dao(session), get_token_service())
 
 
 def get_planning_dao(session: SessionDep) -> PlanningDao:
@@ -40,16 +42,31 @@ def get_planning_dao(session: SessionDep) -> PlanningDao:
 
 
 def get_planning_service(session: SessionDep) -> PlanningService:
-    return PlanningService(get_planning_dao(session))
+    return PlanningService(get_planning_dao(session), get_token_service())
+
 
 def get_token_service() -> TokenService:
     return TokenService()
 
-def get_user_dao(session: SessionDep,) -> UserDao:
+
+def get_user_dao(session: SessionDep, ) -> UserDao:
     return UserDao(session)
 
+
 def get_user_service(session: SessionDep) -> UserService:
-    return UserService(dao=get_user_dao(session=session),token_service=get_token_service(), hash_service=get_hash_service())
+    return UserService(dao=get_user_dao(session=session), token_service=get_token_service(),
+                       hash_service=get_hash_service())
+
+
+def get_token_data(token: str = Depends(oauth2_scheme)) -> TokenData:
+    try:
+        return get_token_service().parse_token(token)
+    except InvalidTokenError:
+        raise HTTPException(
+            status_code=401,
+            detail="Token invalide ou expiré",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 
 def get_hash_service() -> HashService:
@@ -72,7 +89,3 @@ UserDaoDep = Annotated[UserDao, Depends(get_user_dao)]
 UserServiceDep = Annotated[UserService, Depends(get_user_service)]
 
 HashServiceDep = Annotated[HashService, Depends(get_hash_service)]
-
-
-
-

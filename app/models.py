@@ -1,6 +1,8 @@
 """Modèles SQLModel : correspondent aux tables de 4a-isi-projet-db/tables.sql."""
 from datetime import date
 
+from fastapi.security import OAuth2PasswordBearer
+from pydantic import field_validator, model_validator
 from sqlmodel import Field, Relationship, SQLModel
 
 
@@ -47,6 +49,29 @@ class Closure(SQLModel, table=True):
     reason: str | None = None
 
 
+class UserAuth(SQLModel, table=True):
+    __tablename__ = "user_auth"
+    id: int | None = Field(default=None, primary_key=True)
+    username: str  # mail de connexion
+    password_hash: str
+
+
+class User(SQLModel, table=True):
+    __tablename__ = "users"
+
+    id: int | None = Field(default=None, primary_key=True)
+
+    name: str
+    admin: bool
+    locked: bool
+
+    def data(self):
+        return {"id": self.id, "name": self.name, "admin": self.admin, "locked": self.locked}
+
+    def user_token_data(self):
+        return {"id": self.id, "sub": self.name, "admin": self.admin, "locked": self.locked}
+
+
 # ---------- Modèles de réponse (format d'API.md, prix en euros) ----------
 
 class ProductPublic(SQLModel):
@@ -83,19 +108,17 @@ class PlanningDay(SQLModel):
     menus: list[MenuPublic]
 
 
-class User(SQLModel, table= True):
-    __tablename__ = "users"
+class ClosurePublic(SQLModel):
+    id: int
+    closure_date: date
+    reason: str | None = None
 
-    id: int | None = Field(default=None, primary_key=True)
-
-    name: str
-    admin: bool
-    locked: bool
-
-    def data(self):
-        return {"id": self.id,  "name": self.name, "admin" : self.admin, "locked": self.locked}
-    
-
+    @classmethod
+    def from_db(self, closure: Closure) -> "ClosurePublic":
+        return self(
+            id=closure.id,
+            closure_date=closure.closing_date,
+            reason=closure.reason)
 
 
 class Token(SQLModel):
@@ -103,22 +126,179 @@ class Token(SQLModel):
     token_type: str
 
 
+class TokenData(SQLModel):
+    id: int
+    name: str
+    admin: bool
+    locked: bool
+
+
 class UserRegister(SQLModel):
-    name : str
-    mail : str 
-    password : str 
-    
+    name: str
+    mail: str
+    password: str
+
+
 class UserLogin(SQLModel):
-    mail : str
-    password : str
-
-    
-
-class UserAuth(SQLModel, table = True):
-    __tablename__ = "user_auth"
-    id: int | None = Field(default=None, primary_key=True)
-    username : str #mail de connexion
-    password_hash : str
-        
+    mail: str
+    password: str
 
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/user/login")
+
+
+# ---------- Modèles d'entrée (format d'API.md, prix en euros) ----------
+
+class ProductInput(SQLModel):
+    name: str
+    price: float
+    stock: int = 0
+
+    @field_validator("price")
+    @classmethod
+    def price_cents_validator(cls, v):
+        if v <= 0:
+            raise ValueError("Price must be greater than 0")
+        return v
+
+    @field_validator("stock")
+    @classmethod
+    def stock_validator(cls, v):
+        if v < 0:
+            raise ValueError("Stock must be greater than 0")
+        return v
+
+    @field_validator("name")
+    @classmethod
+    def name_not_blank(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("name cannot be empty")
+        return v
+
+
+class ProductUpdateInput(SQLModel):
+    name: str | None = None
+    price: float | None = None
+
+    def to_db_dict(self) -> dict:
+        data = self.model_dump(exclude_unset=True)
+        if "price" in data:
+            data["price_cents"] = round(data.pop("price") * 100)
+        return data
+
+    @field_validator("name")
+    @classmethod
+    def name_not_blank(cls, v):
+        if v is None: return v
+        v = v.strip()
+        if not v:
+            raise ValueError("name cannot be empty")
+        return v
+
+    @field_validator("price")
+    @classmethod
+    def price_cents_validator(cls, v):
+        if v is None: return v
+        if v <= 0:
+            raise ValueError("Price must be greater than 0")
+        return v
+
+
+class ProductStockUpdateInput(SQLModel):
+    stock: int
+
+    def to_db_dict(self):
+        return {"stock": self.stock}
+
+    @field_validator("stock")
+    @classmethod
+    def stock_validator(cls, v):
+        if v < 0:
+            raise ValueError("Stock must be greater than 0")
+        return v
+
+
+class MenuInput(SQLModel):
+    name: str
+    price: float
+    start_date: date
+    end_date: date
+    product_ids: list[int]
+
+    @field_validator("name")
+    @classmethod
+    def name_not_blank(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("name cannot be empty")
+        return v
+
+    @field_validator("price")
+    @classmethod
+    def price_cents_validator(cls, v):
+        if v <= 0:
+            raise ValueError("Price must be greater than 0")
+        return v
+
+    @field_validator("product_ids")
+    @classmethod
+    def product_ids_validator(cls, v):
+        if len(v) < 1:
+            raise ValueError("There must be at least one product in the menu")
+        return v
+
+    @model_validator(mode="after")
+    def date_validator(self):
+        if self.start_date > self.end_date:
+            raise ValueError("Start date must be before end date")
+        return self
+
+
+class MenuUpdateInput(SQLModel):
+    name: str | None = None
+    price: float | None = None
+    start_date: date | None = None
+    end_date: date | None = None
+    product_ids: list[int] | None = None
+
+    def to_db_dict(self):
+        data = self.model_dump(exclude_unset=True)
+        if "price" in data:
+            data["price_cents"] = round(data.pop("price") * 100)
+        return data
+
+    @field_validator("name")
+    @classmethod
+    def name_not_blank(cls, v: str) -> str:
+        if v is None: return v
+        v = v.strip()
+        if not v:
+            raise ValueError("name cannot be empty")
+        return v
+
+    @field_validator("price")
+    @classmethod
+    def price_cents_validator(cls, v):
+        if v is None: return v
+        if v <= 0:
+            raise ValueError("Price must be greater than 0")
+        return v
+
+    @model_validator(mode="after")
+    def date_validator(self):
+        if self.start_date and self.end_date and self.start_date > self.end_date:
+            raise ValueError("Start date must be before end date")
+        return self
+
+
+class ClosureInput(SQLModel):
+    date: str
+    reason: str | None
+
+    @field_validator("date")
+    @classmethod
+    def closure_date_validator(cls, v):
+        if date.fromisoformat(v.strip()) is None:
+            raise ValueError("Closure date must be in YYYY-MM-DD format")
+        return v.strip()
