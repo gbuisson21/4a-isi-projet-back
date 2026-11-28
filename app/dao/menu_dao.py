@@ -45,7 +45,7 @@ class MenuDAO:
         menu_db = self.__session.get(Menu, menu_id)
 
         if not menu_db:
-            raise HTTPException(status_code=404, detail="Product not found")
+            raise HTTPException(status_code=404, detail="Menu not found")
 
         menu_data = menu.to_db_dict()
 
