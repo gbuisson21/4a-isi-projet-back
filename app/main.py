@@ -1,15 +1,13 @@
+import os
 from contextlib import asynccontextmanager
 
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from app.config import FRONT_DIR
-from app.routers.admin import admin_product_controller, admin_menu_controller, admin_planning_controller
-
 from app.routers import menu_controller, product_controller, planning_controller, user_controller
-
-from dotenv import load_dotenv
-
+from app.routers.admin import admin_product_controller, admin_menu_controller, admin_planning_controller
 
 load_dotenv()
 
@@ -20,6 +18,12 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Pol-eat-heck API", lifespan=lifespan)
+
+if os.environ['DEV']:
+    print("Swagger enabled")
+    app.swagger_ui_parameters = {"syntaxHighlight": True}
+    app.docs_url = "/docs"
+    app.openapi_url = "/openapi.json"
 
 app.include_router(menu_controller.router)
 app.include_router(product_controller.router)
