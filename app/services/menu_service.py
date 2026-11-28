@@ -20,18 +20,18 @@ class MenuService:
 
     def create_menu(self, menu: MenuInput, token: TokenData):
         if not self.__token_service.is_admin(token):
-            return HTTPException(status_code=403, detail="Admin privilege required")
+            raise HTTPException(status_code=403, detail="Admin privilege required")
 
         return self.__dao.create_menu(menu)
 
     def update_menu(self, menu_id: int, menu: MenuUpdateInput, token: TokenData):
         if not self.__token_service.is_admin(token):
-            return HTTPException(status_code=403, detail="Admin privilege required")
+            raise HTTPException(status_code=403, detail="Admin privilege required")
 
         return self.__dao.update_menu(menu_id, menu)
 
     def delete_menu(self, menu_id: int, token: TokenData):
         if not self.__token_service.is_admin(token):
-            return HTTPException(status_code=403, detail="Admin privilege required")
+            raise HTTPException(status_code=403, detail="Admin privilege required")
 
         return self.__dao.delete_menu(menu_id)

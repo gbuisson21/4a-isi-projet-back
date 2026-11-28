@@ -17,10 +17,10 @@ class PlanningService:
 
     def create_closure(self, closure: ClosureInput, token_data: TokenData):
         if not self.__token_service.is_admin(token_data):
-            return HTTPException(status_code=403, detail="Admin privilege required")
+            raise HTTPException(status_code=403, detail="Admin privilege required")
         return self.__dao.create_closure(closure)
 
     def delete_closure(self, closure_id: int, token_data: TokenData):
         if not self.__token_service.is_admin(token_data):
-            return HTTPException(status_code=403, detail="Admin privilege required")
+            raise HTTPException(status_code=403, detail="Admin privilege required")
         return self.__dao.delete_closure(closure_id)
